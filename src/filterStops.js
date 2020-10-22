@@ -11,18 +11,18 @@ const filterStops = () =>
       sample({
         source: value,
         clock: checkBoxClicked,
-        target: filterChecked
+        target: filterChecked,
       });
       h("input", () => {
         spec({
           attr: { type: "checkbox", value, checked: active },
           handler: {
             config: { prevent: true },
-            on: { click: checkBoxClicked }
-          }
+            on: { click: checkBoxClicked },
+          },
         });
       });
-    }
+    },
   });
 
 export { filterStops };
