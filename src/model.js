@@ -1,11 +1,11 @@
-import { createEffect, createEvent, createStore, sample } from "effector";
+import { createEffect, createEvent, createStore, sample, forward } from "effector";
 
 const FILTERS = [
-  { value: -1, active: true },
-  { value: 0, active: false },
-  { value: 1, active: false },
-  { value: 2, active: false },
-  { value: 3, active: false },
+  { value: -1, active: true, label: "Все" },
+  { value: 0, active: false, label: "Без пересадок" },
+  { value: 1, active: false, label: "пересадка" },
+  { value: 2, active: false, label: "пересадки" },
+  { value: 3, active: false, label: "пересадки" },
 ];
 
 const filterChecked = createEvent();
@@ -20,7 +20,7 @@ const getSearchIdFx = createEffect(async () => {
   return res.json();
 });
 
-const getTicketListFx = createEffect(async (searchId) => {
+const getTicketListFx = createEffect(async ({ searchId }) => {
   const res = await fetch(`https://front-test.beta.aviasales.ru/tickets?searchId=${searchId}`);
   return res.json();
 });
@@ -42,13 +42,12 @@ $filters.on(filterChecked, (filters, activateFilter) => {
   }
 });
 
-$tickets.on(getTicketListFx.doneData, (_, payload) => payload.tickets.filter((_, i) => i < 20));
+$tickets.on(getTicketListFx.doneData, (_, { tickets }) => tickets);
 
 /*** */
-sample({
-  source: getSearchIdFx.doneData,
-  fn: (searchPayload) => searchPayload.searchId,
-  target: getTicketListFx,
+forward({
+  from: getSearchIdFx.doneData,
+  to: getTicketListFx,
 });
 
 sample({
@@ -62,12 +61,14 @@ const $displayTickets = sample({
   clock: $filters,
   fn: (tickets, filters) => {
     const activeFilters = filters.filter((f) => f.active);
-    if (activeFilters.some((f) => f.value === -1)) return tickets;
-    return tickets.filter((ticket) => {
-      const stops = ticket.segments.map((s) => s.stops.length);
+    if (activeFilters.some((f) => f.value === -1)) return tickets.slice(0, 5);
+    return tickets
+      .filter((ticket) => {
+        const stops = ticket.segments.map((s) => s.stops.length);
 
-      return stops.every((stop) => activeFilters.some((af) => af.value === stop));
-    });
+        return stops.every((stop) => activeFilters.some((af) => af.value === stop));
+      })
+      .slice(0, 5);
   },
 });
 

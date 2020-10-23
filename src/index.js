@@ -15,17 +15,21 @@ using(document.getElementById("root"), () => {
   h("div", () => {
     spec({
       attr: { class: "content" },
-      style: { display: "flex", flexDirection: "row" },
+      style: { display: "flex", flexDirection: "row", fontFamily: `"Open Sans",Tahoma,"sans-serif"` },
     });
 
     h("div", () => {
       spec({
+        text: "Количество пересадок".toLocaleUpperCase(),
         style: {
           display: "flex",
+          fontFamily: `'Open Sans',Tahoma,'sans-serif'`,
+          fontSize: "12px",
+          color: "grey",
           flexDirection: "column",
           marginRight: "30px",
-          height: "150px",
-          width: "150px",
+          height: "200px",
+          width: "200px",
           boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
           borderRadius: "5px",
         },
