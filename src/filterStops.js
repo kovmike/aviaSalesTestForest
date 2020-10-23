@@ -23,7 +23,10 @@ const filterStops = () =>
             },
           });
         });
-        h("label", { text: combine(value, label, (value, label) => (value < 1 ? label : `${value} ${label}`)) });
+        h("label", {
+          text: combine(value, label, (value, label) => (value < 1 ? label : `${value} ${label}`)),
+          style: { color: "black" },
+        });
       });
     },
   });

@@ -1,6 +1,7 @@
 import { using, h, spec, list, remap } from "forest";
-import { ticket } from "./ticket";
+import { ticket } from "./Ticket/ticket";
 import { filterStops } from "./filterStops";
+import { sortLine } from "./sorting";
 import { $displayTickets, getSearchIdFx, getTicketListFx } from "./model";
 
 using(document.getElementById("root"), () => {
@@ -15,7 +16,7 @@ using(document.getElementById("root"), () => {
   h("div", () => {
     spec({
       attr: { class: "content" },
-      style: { display: "flex", flexDirection: "row", fontFamily: `"Open Sans",Tahoma,"sans-serif"` },
+      style: { display: "flex", flexDirection: "row", width: "100%", justifyContent: "center" },
     });
 
     h("div", () => {
@@ -24,6 +25,7 @@ using(document.getElementById("root"), () => {
         style: {
           display: "flex",
           fontFamily: `'Open Sans',Tahoma,'sans-serif'`,
+          padding: "12px",
           fontSize: "12px",
           color: "grey",
           flexDirection: "column",
@@ -41,13 +43,13 @@ using(document.getElementById("root"), () => {
     h("div", () => {
       spec({
         attr: { class: "ticketList" },
-        style: { display: "flex", flexDirection: "column" },
+        style: { display: "flex", flexDirection: "column", width: "40%", maxWidth: "800px" },
       });
+      sortLine();
       list({
         source: $displayTickets,
         fn: ({ store: tickets }) => {
           const [price, carrier, segments] = remap(tickets, ["price", "carrier", "segments"]);
-
           ticket(price, carrier, segments);
         },
       });
