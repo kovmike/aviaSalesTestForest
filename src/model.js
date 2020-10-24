@@ -1,4 +1,5 @@
-import { createEffect, createEvent, createStore, sample, forward } from "effector";
+import { createEffect, createEvent, createStore, sample, forward, merge, guard } from "effector";
+import { $bgColor } from "./sorting";
 
 const FILTERS = [
   { value: -1, active: true, label: "Все" },
@@ -8,7 +9,13 @@ const FILTERS = [
   { value: 3, active: false, label: "пересадки" },
 ];
 
+const totalDuration = (ticket) => {
+  return ticket.segments.reduce((acc, seg) => {
+    return acc + seg.duration;
+  }, 0);
+};
 const filterChecked = createEvent();
+const sorted = createEvent();
 
 const $filters = createStore(FILTERS);
 const $tickets = createStore([]);
@@ -42,9 +49,16 @@ $filters.on(filterChecked, (filters, activateFilter) => {
   }
 });
 
-$tickets.on(getTicketListFx.doneData, (_, { tickets }) => tickets);
+$tickets
+  .on(getTicketListFx.doneData, (_, { tickets }) => tickets)
+  .on(sorted, (ticketList, [key]) => {
+    return key === "c"
+      ? [...ticketList].sort((tCur, tNext) => tCur.price - tNext.price)
+      : [...ticketList].sort((tCur, tNext) => totalDuration(tCur) - totalDuration(tNext));
+  });
 
 /*** */
+//guard(sorted, { filter: getTicketListFx.pending });
 forward({
   from: getSearchIdFx.doneData,
   to: getTicketListFx,
@@ -56,13 +70,25 @@ sample({
   target: filterChecked,
 });
 
+sample({
+  source: $bgColor,
+  clock: getTicketListFx.doneData,
+  fn: (bg) => Object.keys(bg).filter((key) => bg[key] !== "white"),
+  target: sorted,
+});
+sample({
+  source: $bgColor,
+
+  fn: (bg) => Object.keys(bg).filter((key) => bg[key] !== "white"),
+  target: sorted,
+});
+
 const $displayTickets = sample({
-  source: $tickets,
-  clock: $filters,
-  fn: (tickets, filters) => {
-    const activeFilters = filters.filter((f) => f.active);
-    if (activeFilters.some((f) => f.value === -1)) return tickets.slice(0, 5);
-    return tickets
+  source: { $tickets, $filters },
+  fn: ({ $tickets, $filters }) => {
+    const activeFilters = $filters.filter((f) => f.active);
+    if (activeFilters.some((f) => f.value === -1)) return $tickets.slice(0, 5);
+    return $tickets
       .filter((ticket) => {
         const stops = ticket.segments.map((s) => s.stops.length);
 
