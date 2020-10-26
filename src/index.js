@@ -1,8 +1,9 @@
 import { using, h, spec, list, remap } from "forest";
 import { ticket } from "./Ticket/ticket";
-import { filterStops } from "./filterStops";
-import { sortLine } from "./sorting";
+import { filterStops } from "./Filter/filterStops";
+import { sortLine } from "./Sorting/sorting";
 import { $displayTickets, getSearchIdFx, getTicketListFx } from "./model";
+import { styleFilter, styleTicketList, styleMain } from "./style";
 
 using(document.getElementById("root"), () => {
   getSearchIdFx();
@@ -16,25 +17,13 @@ using(document.getElementById("root"), () => {
   h("div", () => {
     spec({
       attr: { class: "content" },
-      style: { display: "flex", flexDirection: "row", width: "100%", justifyContent: "center" },
+      style: styleMain,
     });
 
     h("div", () => {
       spec({
         text: "Количество пересадок".toLocaleUpperCase(),
-        style: {
-          display: "flex",
-          fontFamily: `'Open Sans',Tahoma,'sans-serif'`,
-          padding: "12px",
-          fontSize: "12px",
-          color: "grey",
-          flexDirection: "column",
-          marginRight: "30px",
-          height: "200px",
-          width: "200px",
-          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-          borderRadius: "5px",
-        },
+        style: styleFilter,
       });
 
       filterStops();
@@ -43,7 +32,7 @@ using(document.getElementById("root"), () => {
     h("div", () => {
       spec({
         attr: { class: "ticketList" },
-        style: { display: "flex", flexDirection: "column", width: "40%", maxWidth: "800px" },
+        style: styleTicketList,
       });
       sortLine();
       list({

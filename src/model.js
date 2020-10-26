@@ -1,5 +1,5 @@
-import { createEffect, createEvent, createStore, sample, forward, merge, guard } from "effector";
-import { $bgColor } from "./sorting";
+import { createEffect, createEvent, createStore, sample, forward } from "effector";
+import { $bgColor } from "./Sorting/";
 
 const FILTERS = [
   { value: -1, active: true, label: "Все" },
